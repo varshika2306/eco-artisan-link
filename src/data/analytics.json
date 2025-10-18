@@ -1,0 +1,34 @@
+{
+  "revenue": [
+    { "month": "Apr", "amount": 185000 },
+    { "month": "May", "amount": 198000 },
+    { "month": "Jun", "amount": 215000 },
+    { "month": "Jul", "amount": 225000 },
+    { "month": "Aug", "amount": 232000 },
+    { "month": "Sep", "amount": 240000 }
+  ],
+  "topMaterials": [
+    { "name": "Jute Rope", "sales": 42 },
+    { "name": "Bamboo Fiber", "sales": 31 },
+    { "name": "Organic Clay", "sales": 24 },
+    { "name": "Natural Dyes", "sales": 18 },
+    { "name": "Hemp Fabric", "sales": 15 }
+  ],
+  "ecoImpact": {
+    "co2Saved": "12.4 tons",
+    "waterReduced": "45,000 L",
+    "recycledPercent": 78
+  },
+  "clusterGrowth": [
+    { "quarter": "Q1", "clusters": 8 },
+    { "quarter": "Q2", "clusters": 12 },
+    { "quarter": "Q3", "clusters": 18 },
+    { "quarter": "Q4", "clusters": 24 }
+  ],
+  "aiSuggestions": [
+    "Demand for organic clay is expected to increase by 18% next quarter. Consider increasing stock levels to meet anticipated orders.",
+    "Your eco score of 94% puts you in the top 5% of suppliers. Highlight this in your listings for better visibility.",
+    "Hemp fabric orders have grown 25% month-over-month. Consider expanding this product line.",
+    "Artisans in Tamil Nadu cluster are actively seeking natural dyes. Your current stock can fulfill 8 new connections."
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "profile": {
+    "name": "Green Harvest Supplies",
+    "specialty": "Organic Raw Materials",
+    "location": "Karnataka, India",
+    "joinedDate": "2023-06-15",
+    "ecoScore": 94
+  },
+  "metrics": {
+    "activeListings": 45,
+    "monthlySales": 240000,
+    "connectedArtisans": 128,
+    "ecoScore": 94,
+    "changes": {
+      "activeListings": 12,
+      "monthlySales": 8,
+      "connectedArtisans": 5,
+      "ecoScore": 2
+    }
+  },
+  "listings": [
+    {
+      "id": "1",
+      "name": "Organic Clay",
+      "stock": "2.5 tons",
+      "unit": "kg",
+      "pricePerKg": 45,
+      "orders": 24,
+      "ecoScore": 95,
+      "status": "active",
+      "moq": 50,
+      "image": "/placeholder.svg",
+      "description": "Premium organic clay sourced from sustainable mines"
+    },
+    {
+      "id": "2",
+      "name": "Natural Dyes",
+      "stock": "450 kg",
+      "unit": "kg",
+      "pricePerKg": 280,
+      "orders": 18,
+      "ecoScore": 92,
+      "status": "active",
+      "moq": 10,
+      "image": "/placeholder.svg",
+      "description": "Plant-based natural dyes, eco-certified"
+    },
+    {
+      "id": "3",
+      "name": "Bamboo Fiber",
+      "stock": "1.2 tons",
+      "unit": "kg",
+      "pricePerKg": 120,
+      "orders": 31,
+      "ecoScore": 98,
+      "status": "active",
+      "moq": 25,
+      "image": "/placeholder.svg",
+      "description": "Sustainable bamboo fiber, fast-growing resource"
+    },
+    {
+      "id": "4",
+      "name": "Hemp Fabric",
+      "stock": "800 kg",
+      "unit": "meter",
+      "pricePerKg": 350,
+      "orders": 15,
+      "ecoScore": 96,
+      "status": "active",
+      "moq": 20,
+      "image": "/placeholder.svg",
+      "description": "100% organic hemp fabric, carbon-negative"
+    },
+    {
+      "id": "5",
+      "name": "Jute Rope",
+      "stock": "3.5 tons",
+      "unit": "meter",
+      "pricePerKg": 85,
+      "orders": 42,
+      "ecoScore": 89,
+      "status": "active",
+      "moq": 100,
+      "image": "/placeholder.svg",
+      "description": "Biodegradable jute rope, locally sourced"
+    }
+  ]
+}

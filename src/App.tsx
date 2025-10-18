@@ -8,6 +8,9 @@ import Onboarding from "./pages/Onboarding";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 import MaterialHub from "./pages/MaterialHub";
 import SupplierDashboard from "./pages/SupplierDashboard";
+import SupplierListings from "./pages/SupplierListings";
+import SupplierOrders from "./pages/SupplierOrders";
+import SupplierAnalytics from "./pages/SupplierAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +27,9 @@ const App = () => (
           <Route path="/portfolio" element={<ArtisanPortfolio />} />
           <Route path="/hub" element={<MaterialHub />} />
           <Route path="/supplier" element={<SupplierDashboard />} />
+          <Route path="/supplier/listings" element={<SupplierListings />} />
+          <Route path="/supplier/orders" element={<SupplierOrders />} />
+          <Route path="/supplier/analytics" element={<SupplierAnalytics />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

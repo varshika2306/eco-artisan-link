@@ -34,7 +34,7 @@ export function Sidebar() {
   const supplierItems = [
     { title: "Dashboard", url: "/supplier", icon: Home },
     { title: "Listings", url: "/supplier/listings", icon: Package },
-    { title: "Orders", url: "/supplier/orders", icon: BarChart3 },
+    { title: "Orders", url: "/supplier/orders", icon: Repeat },
     { title: "Analytics", url: "/supplier/analytics", icon: BarChart3 },
   ];
 
