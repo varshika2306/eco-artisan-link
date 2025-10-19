@@ -11,6 +11,10 @@ import SupplierDashboard from "./pages/SupplierDashboard";
 import SupplierListings from "./pages/SupplierListings";
 import SupplierOrders from "./pages/SupplierOrders";
 import SupplierAnalytics from "./pages/SupplierAnalytics";
+import SwapBarter from "./pages/SwapBarter";
+import AIStudio from "./pages/AIStudio";
+import CommunityHub from "./pages/CommunityHub";
+import ArtisanAnalytics from "./pages/ArtisanAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +30,10 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/portfolio" element={<ArtisanPortfolio />} />
           <Route path="/hub" element={<MaterialHub />} />
+          <Route path="/swap" element={<SwapBarter />} />
+          <Route path="/studio" element={<AIStudio />} />
+          <Route path="/community" element={<CommunityHub />} />
+          <Route path="/analytics" element={<ArtisanAnalytics />} />
           <Route path="/supplier" element={<SupplierDashboard />} />
           <Route path="/supplier/listings" element={<SupplierListings />} />
           <Route path="/supplier/orders" element={<SupplierOrders />} />
