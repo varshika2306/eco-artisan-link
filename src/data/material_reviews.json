@@ -1,0 +1,86 @@
+{
+  "reviews": [
+    {
+      "materialId": "1",
+      "artisanName": "Priya Sharma",
+      "rating": 5,
+      "comment": "Excellent quality clay! Perfect for pottery work. Supplier is very reliable.",
+      "date": "2024-01-15",
+      "helpful": 12
+    },
+    {
+      "materialId": "1",
+      "artisanName": "Ravi Kumar",
+      "rating": 4,
+      "comment": "Good clay but delivery took longer than expected. Quality is top-notch though.",
+      "date": "2024-01-10",
+      "helpful": 8
+    },
+    {
+      "materialId": "2",
+      "artisanName": "Lakshmi Devi",
+      "rating": 5,
+      "comment": "Best bamboo fiber I've used! Great for weaving. Highly recommended.",
+      "date": "2024-01-20",
+      "helpful": 15
+    },
+    {
+      "materialId": "3",
+      "artisanName": "Amit Patel",
+      "rating": 4,
+      "comment": "Quality recycled fabric. Good for eco-friendly projects. Fair pricing.",
+      "date": "2024-01-12",
+      "helpful": 6
+    }
+  ],
+  "supplierTips": [
+    {
+      "supplierId": "organic-clay-co",
+      "tips": [
+        "Order in bulk during harvest season (Oct-Dec) for better prices",
+        "Ask for samples before placing large orders",
+        "They offer free delivery for orders above ₹5000"
+      ]
+    },
+    {
+      "supplierId": "green-fiber-ltd",
+      "tips": [
+        "Pre-order 2 weeks in advance for custom lengths",
+        "Join their WhatsApp group for flash sales",
+        "Quality certification available on request"
+      ]
+    }
+  ],
+  "clusterInsights": {
+    "handloom-textile": {
+      "topMaterials": ["Cotton Yarn", "Natural Dyes", "Bamboo Fiber"],
+      "avgMonthlySpend": 12000,
+      "seasonalTrends": "Peak demand in wedding season (Oct-Feb)",
+      "costSavingTip": "Join cluster buying groups to save 20-30%"
+    },
+    "clay-metal-stone": {
+      "topMaterials": ["Natural Clay", "Metal Scrap", "Stone"],
+      "avgMonthlySpend": 8500,
+      "seasonalTrends": "Festive season (Aug-Nov) sees 40% spike",
+      "costSavingTip": "Buy clay in monsoon when mining is easier"
+    },
+    "craft-home-decor": {
+      "topMaterials": ["Bamboo", "Wood", "Cane"],
+      "avgMonthlySpend": 10000,
+      "seasonalTrends": "Summer demand for home decor increases",
+      "costSavingTip": "Source locally to reduce transport costs"
+    },
+    "folk-painting-decorative": {
+      "topMaterials": ["Natural Dyes", "Canvas", "Organic Paints"],
+      "avgMonthlySpend": 6500,
+      "seasonalTrends": "Art exhibitions drive Q4 demand",
+      "costSavingTip": "Natural dyes cheaper in harvest months"
+    },
+    "upcycled-recycled": {
+      "topMaterials": ["Recycled Paper", "Fabric Scraps", "Metal Scrap"],
+      "avgMonthlySpend": 5000,
+      "seasonalTrends": "Steady demand year-round",
+      "costSavingTip": "Partner with local waste collectors"
+    }
+  }
+}

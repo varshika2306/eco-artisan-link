@@ -6,10 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/navigation/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { 
   Search, Filter, MapPin, Leaf, TrendingUp, ShoppingCart, 
   Star, MessageCircle, Package, Clock, Sparkles, Users, Award,
-  X, Plus, Minus, ChevronDown, Target, Zap
+  X, Plus, Minus, ChevronDown, Target, Zap, Bookmark, BookmarkCheck,
+  AlertCircle, ThumbsUp, Lightbulb, PieChart, Calendar, Heart, Copy
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -20,6 +25,7 @@ import {
 import materialsCollection from "@/assets/materials-collection.jpg";
 import { toast } from "sonner";
 import clustersData from "@/data/clusters_mapping.json";
+import reviewsData from "@/data/material_reviews.json";
 
 interface Material {
   id: string;
@@ -53,11 +59,25 @@ const MaterialHub = () => {
   const [userCluster, setUserCluster] = useState<string>("");
   const [matchedSuppliers, setMatchedSuppliers] = useState<string[]>([]);
   const [aiSuggestion, setAiSuggestion] = useState<string>("");
+  const [bookmarkedSuppliers, setBookmarkedSuppliers] = useState<string[]>([]);
+  const [inventory, setInventory] = useState<Record<string, number>>({});
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [showStoryModal, setShowStoryModal] = useState(false);
+  const [generatedStory, setGeneratedStory] = useState("");
 
   useEffect(() => {
     // Get artisan's cluster from localStorage
     const cluster = localStorage.getItem("userCluster") || "";
     setUserCluster(cluster);
+
+    // Load bookmarks and inventory
+    const savedBookmarks = localStorage.getItem("bookmarkedSuppliers");
+    if (savedBookmarks) setBookmarkedSuppliers(JSON.parse(savedBookmarks));
+
+    const savedInventory = localStorage.getItem("materialInventory");
+    if (savedInventory) setInventory(JSON.parse(savedInventory));
 
     if (cluster) {
       // Find matching rule
@@ -68,6 +88,36 @@ const MaterialHub = () => {
       }
     }
   }, []);
+
+  const toggleBookmark = (supplierId: string) => {
+    const updated = bookmarkedSuppliers.includes(supplierId)
+      ? bookmarkedSuppliers.filter(id => id !== supplierId)
+      : [...bookmarkedSuppliers, supplierId];
+    setBookmarkedSuppliers(updated);
+    localStorage.setItem("bookmarkedSuppliers", JSON.stringify(updated));
+    toast.success(bookmarkedSuppliers.includes(supplierId) ? "Supplier removed from bookmarks" : "Supplier bookmarked!");
+  };
+
+  const updateInventory = (materialId: string, quantity: number) => {
+    const updated = { ...inventory, [materialId]: quantity };
+    setInventory(updated);
+    localStorage.setItem("materialInventory", JSON.stringify(updated));
+    toast.success("Inventory updated");
+  };
+
+  const generateMaterialStory = (material: Material) => {
+    setShowStoryModal(true);
+    setTimeout(() => {
+      const stories = [
+        `Discover the beauty of ${material.name}, sourced sustainably from ${material.location}. This premium material from ${material.supplier} embodies our commitment to eco-friendly craftsmanship. With a ${material.ecoRating}% sustainability score, it's perfect for creating authentic, earth-conscious pieces that tell a story.`,
+        `${material.name} from ${material.supplier} represents the finest in sustainable sourcing. Each batch is carefully selected to meet our rigorous quality standards. Perfect for artisans who value both tradition and environmental responsibility.`,
+        `Transform your craft with ${material.name}. This ${material.tags.join(", ")} material brings together quality, sustainability, and artisan values. Trusted by ${material.location} craftspeople for generations.`
+      ];
+      setGeneratedStory(stories[Math.floor(Math.random() * stories.length)]);
+    }, 1500);
+  };
+
+  const clusterInsights = userCluster ? reviewsData.clusterInsights[userCluster as keyof typeof reviewsData.clusterInsights] : null;
 
   const materials: Material[] = [
     {
@@ -293,6 +343,178 @@ const MaterialHub = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* Cluster Insights & Inventory Panel */}
+          <Tabs defaultValue="insights" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="insights">
+                <PieChart className="mr-2 h-4 w-4" />
+                Cluster Insights
+              </TabsTrigger>
+              <TabsTrigger value="inventory">
+                <Package className="mr-2 h-4 w-4" />
+                My Inventory
+              </TabsTrigger>
+              <TabsTrigger value="bookmarks">
+                <Bookmark className="mr-2 h-4 w-4" />
+                Saved Suppliers
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="insights" className="space-y-4 mt-4">
+              {clusterInsights ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Card className="p-6 card-glow">
+                    <div className="flex items-center gap-2 mb-4">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <h3 className="font-heading text-lg font-semibold">Top Materials</h3>
+                    </div>
+                    <div className="space-y-2">
+                      {clusterInsights.topMaterials.map((material, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-2 bg-primary/5 rounded-lg">
+                          <span className="font-medium">{material}</span>
+                          <Badge variant="secondary">Popular</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+
+                  <Card className="p-6 card-glow">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Calendar className="h-5 w-5 text-accent" />
+                      <h3 className="font-heading text-lg font-semibold">Seasonal Trends</h3>
+                    </div>
+                    <p className="text-muted-foreground mb-3">{clusterInsights.seasonalTrends}</p>
+                    <div className="p-3 bg-accent/10 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Lightbulb className="h-4 w-4 text-accent mt-0.5" />
+                        <p className="text-sm font-medium">{clusterInsights.costSavingTip}</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="p-6 card-glow md:col-span-2">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Target className="h-5 w-5 text-primary" />
+                      <h3 className="font-heading text-lg font-semibold">Average Monthly Spend</h3>
+                    </div>
+                    <p className="text-3xl font-bold text-primary">₹{clusterInsights.avgMonthlySpend.toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground mt-1">Based on your cluster average</p>
+                  </Card>
+                </div>
+              ) : (
+                <Card className="p-8 text-center">
+                  <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground">Complete your profile to see cluster insights</p>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="inventory" className="space-y-4 mt-4">
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading text-lg font-semibold">Track Your Materials</h3>
+                  <Badge variant="secondary">{Object.keys(inventory).length} items tracked</Badge>
+                </div>
+                {Object.keys(inventory).length > 0 ? (
+                  <div className="space-y-3">
+                    {Object.entries(inventory).map(([materialId, quantity]) => {
+                      const material = materials.find(m => m.id === materialId);
+                      if (!material) return null;
+                      const stockLevel = (quantity / 100) * 100;
+                      return (
+                        <div key={materialId} className="p-4 border rounded-lg space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">{material.image}</span>
+                              <div>
+                                <p className="font-medium">{material.name}</p>
+                                <p className="text-sm text-muted-foreground">{quantity} {material.unit}</p>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const newQty = prompt(`Update quantity for ${material.name}:`, quantity.toString());
+                                if (newQty) updateInventory(materialId, parseInt(newQty));
+                              }}
+                            >
+                              Update
+                            </Button>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>Stock Level</span>
+                              <span className={stockLevel < 30 ? "text-destructive" : "text-accent"}>{stockLevel}%</span>
+                            </div>
+                            <Progress value={stockLevel} className="h-2" />
+                            {stockLevel < 30 && (
+                              <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" />
+                                Running low - consider reordering
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Package className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-muted-foreground mb-3">No materials tracked yet</p>
+                    <p className="text-sm text-muted-foreground">Add materials from cart to track inventory</p>
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="bookmarks" className="space-y-4 mt-4">
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading text-lg font-semibold">Saved Suppliers</h3>
+                  <Badge variant="secondary">{bookmarkedSuppliers.length} saved</Badge>
+                </div>
+                {bookmarkedSuppliers.length > 0 ? (
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {bookmarkedSuppliers.map((supplierId) => {
+                      const material = materials.find(m => m.supplier.toLowerCase().replace(/\s+/g, "-") === supplierId);
+                      return material ? (
+                        <Card key={supplierId} className="p-4 hover-lift">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-medium">{material.supplier}</p>
+                              <p className="text-xs text-muted-foreground">{material.location}</p>
+                            </div>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => toggleBookmark(supplierId)}
+                            >
+                              <BookmarkCheck className="h-4 w-4 text-primary" />
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Star className="h-3 w-3 fill-primary text-primary" />
+                            <span className="text-sm">{material.supplierRating}</span>
+                            <Badge className="bg-accent/10 text-accent ml-auto text-xs">
+                              {material.ecoRating}% Eco
+                            </Badge>
+                          </div>
+                        </Card>
+                      ) : null;
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Bookmark className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                    <p className="text-muted-foreground">No saved suppliers yet</p>
+                  </div>
+                )}
+              </Card>
+            </TabsContent>
+          </Tabs>
 
           {/* AI Matchmaking Banner */}
           {userCluster && matchedSuppliers.length > 0 && (
@@ -566,6 +788,74 @@ const MaterialHub = () => {
                     ))}
                   </div>
 
+                  {/* Community Reviews Section */}
+                  <Card className="p-4 bg-gradient-to-r from-primary/5 to-accent/5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="h-4 w-4 text-primary" />
+                      <h4 className="font-semibold">Community Reviews</h4>
+                    </div>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {reviewsData.reviews
+                        .filter(r => r.materialId === selectedMaterial.id)
+                        .map((review, idx) => (
+                          <div key={idx} className="p-3 bg-card rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">{review.artisanName}</span>
+                                <div className="flex items-center gap-1">
+                                  {Array.from({ length: review.rating }).map((_, i) => (
+                                    <Star key={i} className="h-3 w-3 fill-primary text-primary" />
+                                  ))}
+                                </div>
+                              </div>
+                              <span className="text-xs text-muted-foreground">{review.date}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{review.comment}</p>
+                            <Button size="sm" variant="ghost" className="h-auto p-1">
+                              <ThumbsUp className="h-3 w-3 mr-1" />
+                              <span className="text-xs">Helpful ({review.helpful})</span>
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowReviewModal(true)}
+                      className="w-full mt-3"
+                    >
+                      Write a Review
+                    </Button>
+                  </Card>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const supplierId = selectedMaterial.supplier.toLowerCase().replace(/\s+/g, "-");
+                        toggleBookmark(supplierId);
+                      }}
+                    >
+                      {bookmarkedSuppliers.includes(selectedMaterial.supplier.toLowerCase().replace(/\s+/g, "-")) ? (
+                        <BookmarkCheck className="mr-2 h-4 w-4" />
+                      ) : (
+                        <Bookmark className="mr-2 h-4 w-4" />
+                      )}
+                      {bookmarkedSuppliers.includes(selectedMaterial.supplier.toLowerCase().replace(/\s+/g, "-")) ? "Saved" : "Save Supplier"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        generateMaterialStory(selectedMaterial);
+                        setSelectedMaterial(null);
+                      }}
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Generate Story
+                    </Button>
+                  </div>
+
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Price</p>
@@ -581,6 +871,7 @@ const MaterialHub = () => {
                         className="gradient-hero"
                         onClick={() => {
                           addToCart(selectedMaterial, selectedMaterial.minOrder);
+                          updateInventory(selectedMaterial.id, selectedMaterial.minOrder);
                           setSelectedMaterial(null);
                         }}
                       >
@@ -686,6 +977,130 @@ const MaterialHub = () => {
                 </Card>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* AI Story Generation Modal */}
+        <Dialog open={showStoryModal} onOpenChange={setShowStoryModal}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                AI Material Story
+              </DialogTitle>
+              <DialogDescription>
+                Generate compelling narratives about your materials for marketing
+              </DialogDescription>
+            </DialogHeader>
+
+            {!generatedStory ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="relative">
+                  <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-primary" />
+                </div>
+                <p className="text-muted-foreground mt-4">Crafting your story...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Card className="p-4 bg-gradient-to-r from-primary/5 to-accent/5">
+                  <p className="text-sm leading-relaxed">{generatedStory}</p>
+                </Card>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedStory);
+                      toast.success("Story copied to clipboard!");
+                    }}
+                    className="flex-1"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const newStory = generatedStory;
+                      setReviewText(newStory);
+                      toast.info("Use this in your product listings!");
+                    }}
+                    className="flex-1"
+                  >
+                    <Heart className="mr-2 h-4 w-4" />
+                    Use in Listing
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setGeneratedStory("");
+                      setShowStoryModal(false);
+                    }}
+                    className="flex-1 gradient-hero"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Review Modal */}
+        <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Write a Review</DialogTitle>
+              <DialogDescription>
+                Share your experience to help other artisans
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Rating</Label>
+                <div className="flex gap-1 mt-2">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <Button
+                      key={rating}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setReviewRating(rating)}
+                    >
+                      <Star
+                        className={`h-5 w-5 ${
+                          rating <= reviewRating ? "fill-primary text-primary" : "text-muted-foreground"
+                        }`}
+                      />
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="review">Your Review</Label>
+                <Textarea
+                  id="review"
+                  placeholder="Share your experience with this material..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  rows={4}
+                  className="mt-2"
+                />
+              </div>
+
+              <Button
+                onClick={() => {
+                  toast.success("Thank you for your review!");
+                  setShowReviewModal(false);
+                  setReviewText("");
+                  setReviewRating(5);
+                }}
+                className="w-full gradient-hero"
+              >
+                Submit Review
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
