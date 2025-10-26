@@ -1,0 +1,49 @@
+{
+  "sampleProfiles": [
+    {
+      "id": "art_001",
+      "name": "Priya Sharma",
+      "cluster": "handloom-textile",
+      "subCategory": "Block Printing",
+      "products": ["Cotton Sarees", "Block Print Dupattas", "Table Runners"],
+      "materialsNeeded": ["Cotton Fabric", "Natural Dyes", "Wooden Blocks", "Eco Packaging"],
+      "location": {
+        "state": "Rajasthan",
+        "district": "Jaipur"
+      },
+      "digitalLiteracy": "medium",
+      "yearsOfExperience": 8,
+      "ecoScore": 92
+    },
+    {
+      "id": "art_002",
+      "name": "Ravi Kumar",
+      "cluster": "clay-metal-stone",
+      "subCategory": "Pottery & Ceramics",
+      "products": ["Clay Pots", "Decorative Vases", "Terracotta Lamps"],
+      "materialsNeeded": ["Natural Clay", "Glazes", "Ceramic Tools"],
+      "location": {
+        "state": "Gujarat",
+        "district": "Kutch"
+      },
+      "digitalLiteracy": "low",
+      "yearsOfExperience": 15,
+      "ecoScore": 95
+    },
+    {
+      "id": "art_003",
+      "name": "Lakshmi Devi",
+      "cluster": "folk-painting-decorative",
+      "subCategory": "Madhubani Painting",
+      "products": ["Wall Art", "Canvas Paintings", "Greeting Cards"],
+      "materialsNeeded": ["Natural Colors", "Handmade Paper", "Brushes", "Canvas"],
+      "location": {
+        "state": "Bihar",
+        "district": "Madhubani"
+      },
+      "digitalLiteracy": "low",
+      "yearsOfExperience": 20,
+      "ecoScore": 98
+    }
+  ]
+}

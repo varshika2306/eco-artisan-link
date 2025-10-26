@@ -4,10 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/navigation/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Package, TrendingUp, Users, Leaf, Plus, BarChart3, ArrowUp, ArrowDown } from "lucide-react";
+import { Package, TrendingUp, Users, Leaf, Plus, BarChart3, ArrowUp, ArrowDown, Briefcase } from "lucide-react";
 import { AddListingModal } from "@/components/supplier/AddListingModal";
 import { toast } from "sonner";
 import supplierData from "@/data/supplier_data.json";
+import clustersData from "@/data/clusters_mapping.json";
 
 type Listing = {
   id: string;
@@ -25,10 +26,13 @@ type Listing = {
 
 const SupplierDashboard = () => {
   const userName = localStorage.getItem("userName") || "Supplier";
+  const userSupplierType = localStorage.getItem("userSupplierType") || "";
   const [metrics, setMetrics] = useState(supplierData.metrics);
   const [listings, setListings] = useState<Listing[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [aiInsight, setAiInsight] = useState(0);
+  
+  const supplierTypeInfo = clustersData.supplierTypes.find(s => s.id === userSupplierType);
 
   const aiInsights = [
     "Demand for organic clay is expected to increase by 18% next quarter. Consider increasing stock levels to meet anticipated orders.",
@@ -79,12 +83,30 @@ const SupplierDashboard = () => {
         <main className="flex-1 p-4 md:p-8 space-y-8">
           {/* Header */}
           <div className="animate-fade-in">
-            <h1 className="font-heading text-4xl font-bold mb-2">
-              Welcome back, {userName}!
-            </h1>
+            <div className="flex items-center gap-3 mb-4">
+              <h1 className="font-heading text-4xl font-bold">
+                Welcome back, {userName}!
+              </h1>
+              {supplierTypeInfo && (
+                <Badge className="bg-gradient-to-r from-primary to-accent text-white text-lg px-4 py-1">
+                  <span className="mr-2">{supplierTypeInfo.icon}</span>
+                  {supplierTypeInfo.name}
+                </Badge>
+              )}
+            </div>
             <p className="text-muted-foreground">
               Manage your listings and track performance
             </p>
+            {supplierTypeInfo && supplierTypeInfo.certifications && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {supplierTypeInfo.certifications.map((cert, idx) => (
+                  <Badge key={idx} variant="secondary">
+                    <Briefcase className="mr-1 h-3 w-3" />
+                    {cert}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick Stats */}

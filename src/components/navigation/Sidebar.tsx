@@ -38,6 +38,10 @@ export function Sidebar() {
     { title: "Analytics", url: "/supplier/analytics", icon: BarChart3 },
   ];
 
+  const commonItems = [
+    { title: "Cluster Mapping", url: "/cluster-mapping", icon: Users },
+  ];
+
   const items = userRole === "artisan" ? artisanItems : supplierItems;
 
   const handleLogout = () => {
@@ -70,6 +74,21 @@ export function Sidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      onClick={() => navigate(item.url)}
+                      className={isActive ? "bg-primary text-primary-foreground" : ""}
+                      tooltip={item.title}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+              {commonItems.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { 
   Search, Filter, MapPin, Leaf, TrendingUp, ShoppingCart, 
   Star, MessageCircle, Package, Clock, Sparkles, Users, Award,
-  X, Plus, Minus, ChevronDown
+  X, Plus, Minus, ChevronDown, Target, Zap
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import materialsCollection from "@/assets/materials-collection.jpg";
 import { toast } from "sonner";
+import clustersData from "@/data/clusters_mapping.json";
 
 interface Material {
   id: string;
@@ -49,6 +50,24 @@ const MaterialHub = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [filterBy, setFilterBy] = useState("All Materials");
+  const [userCluster, setUserCluster] = useState<string>("");
+  const [matchedSuppliers, setMatchedSuppliers] = useState<string[]>([]);
+  const [aiSuggestion, setAiSuggestion] = useState<string>("");
+
+  useEffect(() => {
+    // Get artisan's cluster from localStorage
+    const cluster = localStorage.getItem("userCluster") || "";
+    setUserCluster(cluster);
+
+    if (cluster) {
+      // Find matching rule
+      const rule = clustersData.aiMatchingRules[cluster as keyof typeof clustersData.aiMatchingRules];
+      if (rule) {
+        setMatchedSuppliers(rule.priority);
+        setAiSuggestion(rule.suggestion);
+      }
+    }
+  }, []);
 
   const materials: Material[] = [
     {
@@ -161,11 +180,17 @@ const MaterialHub = () => {
     },
   ];
 
-  const aiRecommendations = [
-    "Based on your pottery work, Natural Clay and Organic Dyes are trending in your region this month.",
-    "Bamboo Fiber is 15% cheaper this week due to harvest season - perfect for your weaving projects!",
-    "Consider joining a cluster order for Metal Scrap to save up to 25% on bulk purchases."
-  ];
+  const aiRecommendations = aiSuggestion 
+    ? [
+        aiSuggestion,
+        "Based on your craft cluster, these suppliers are verified and eco-certified.",
+        "Consider joining a cluster order to save up to 25% on bulk purchases."
+      ]
+    : [
+        "Complete your profile to get personalized supplier recommendations!",
+        "Join a craft cluster to unlock exclusive material discounts.",
+        "Explore eco-certified suppliers for better sustainability scores."
+      ];
 
   const [currentAITip, setCurrentAITip] = useState(0);
 
@@ -268,6 +293,40 @@ const MaterialHub = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* AI Matchmaking Banner */}
+          {userCluster && matchedSuppliers.length > 0 && (
+            <Card className="p-6 card-glow overflow-hidden relative bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 border-2 border-primary/30">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-gradient-to-br from-primary to-accent rounded-full">
+                  <Target className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <Badge className="bg-primary text-primary-foreground mb-2">
+                    <Zap className="mr-1 h-3 w-3" />
+                    AI Smart Match Active
+                  </Badge>
+                  <h3 className="font-heading text-lg font-bold mb-1">
+                    Suppliers Matched to Your Cluster
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {clustersData.artisanClusters.find(c => c.id === userCluster)?.name}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {matchedSuppliers.map((supplierId) => {
+                      const supplier = clustersData.supplierTypes.find(s => s.id === supplierId);
+                      return supplier ? (
+                        <Badge key={supplierId} variant="secondary" className="text-sm">
+                          <span className="mr-1">{supplier.icon}</span>
+                          {supplier.name}
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
 
           {/* AI Recommendation Banner */}
           <Card className="p-6 card-glow overflow-hidden relative bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">

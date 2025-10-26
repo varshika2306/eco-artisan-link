@@ -15,6 +15,7 @@ import SwapBarter from "./pages/SwapBarter";
 import AIStudio from "./pages/AIStudio";
 import CommunityHub from "./pages/CommunityHub";
 import ArtisanAnalytics from "./pages/ArtisanAnalytics";
+import ClusterMapping from "./pages/ClusterMapping";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/supplier/listings" element={<SupplierListings />} />
           <Route path="/supplier/orders" element={<SupplierOrders />} />
           <Route path="/supplier/analytics" element={<SupplierAnalytics />} />
+          <Route path="/cluster-mapping" element={<ClusterMapping />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

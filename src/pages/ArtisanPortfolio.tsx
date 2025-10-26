@@ -15,10 +15,11 @@ import confetti from "canvas-confetti";
 import { 
   Play, Pause, Sparkles, Award, Leaf, Users, Plus, 
   Clock, Trophy, Target, Copy, Download, Share2, 
-  Edit, Trash2, TrendingUp, Heart, Camera, Mic
+  Edit, Trash2, TrendingUp, Heart, Camera, Mic, Briefcase
 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import artisanProfile from "@/assets/artisan-profile.jpg";
+import clustersData from "@/data/clusters_mapping.json";
 
 const ArtisanPortfolio = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -45,6 +46,10 @@ const ArtisanPortfolio = () => {
   const userName = localStorage.getItem("userName") || "Artisan";
   const userLocation = localStorage.getItem("userLocation") || "India";
   const userSpecialty = localStorage.getItem("userSpecialty") || "Traditional Crafts";
+  const userCluster = localStorage.getItem("userCluster") || "";
+  const userSubCategory = localStorage.getItem("userSubCategory") || "";
+  
+  const clusterInfo = clustersData.artisanClusters.find(c => c.id === userCluster);
 
   const badges = [
     { name: "Eco Warrior", icon: "🌿", progress: 100, unlocked: true },
@@ -183,6 +188,21 @@ const ArtisanPortfolio = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-2">
+                  {clusterInfo && (
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Badge className="bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg">
+                        <Briefcase className="mr-1 h-3 w-3" />
+                        {clusterInfo.icon} {clusterInfo.name}
+                      </Badge>
+                    </motion.div>
+                  )}
+                  {userSubCategory && (
+                    <motion.div whileHover={{ scale: 1.05 }}>
+                      <Badge variant="secondary">
+                        {userSubCategory}
+                      </Badge>
+                    </motion.div>
+                  )}
                   <motion.div whileHover={{ scale: 1.05 }}>
                     <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
                       <Award className="mr-1 h-3 w-3" />

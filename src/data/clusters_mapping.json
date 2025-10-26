@@ -1,0 +1,146 @@
+{
+  "artisanClusters": [
+    {
+      "id": "handloom-textile",
+      "name": "Handloom & Textile Arts",
+      "icon": "🧵",
+      "subCategories": [
+        "Handloom Weaving",
+        "Block Printing",
+        "Tie & Dye",
+        "Embroidery",
+        "Textile Painting"
+      ],
+      "typicalMaterials": ["Cotton Yarn", "Silk Thread", "Natural Dyes", "Fabric", "Bamboo Fiber"],
+      "matchedSupplierTypes": ["textile-yarn", "natural-dyes", "eco-packaging"]
+    },
+    {
+      "id": "craft-home-decor",
+      "name": "Craft & Home Décor (Wood, Bamboo, Cane)",
+      "icon": "🪵",
+      "subCategories": [
+        "Wood Carving",
+        "Bamboo Craft",
+        "Cane Weaving",
+        "Furniture Making",
+        "Wall Décor"
+      ],
+      "typicalMaterials": ["Bamboo", "Wood", "Cane", "Natural Varnish", "Jute Rope"],
+      "matchedSupplierTypes": ["local-raw-materials", "eco-packaging"]
+    },
+    {
+      "id": "clay-metal-stone",
+      "name": "Clay, Metal & Stone Arts",
+      "icon": "🏺",
+      "subCategories": [
+        "Pottery & Ceramics",
+        "Metal Craft",
+        "Stone Carving",
+        "Jewelry Making",
+        "Terracotta"
+      ],
+      "typicalMaterials": ["Clay", "Metal Scrap", "Stone", "Brass", "Copper Wire"],
+      "matchedSupplierTypes": ["local-raw-materials", "recycled-materials"]
+    },
+    {
+      "id": "folk-painting-decorative",
+      "name": "Folk, Painting & Decorative Arts",
+      "icon": "🎨",
+      "subCategories": [
+        "Madhubani Painting",
+        "Warli Art",
+        "Pattachitra",
+        "Miniature Painting",
+        "Folk Art"
+      ],
+      "typicalMaterials": ["Natural Dyes", "Organic Paints", "Canvas", "Handmade Paper", "Brushes"],
+      "matchedSupplierTypes": ["natural-dyes", "eco-packaging", "local-raw-materials"]
+    },
+    {
+      "id": "upcycled-recycled",
+      "name": "Upcycled / Recycled Crafts",
+      "icon": "♻️",
+      "subCategories": [
+        "Recycled Paper Craft",
+        "Upcycled Fabric",
+        "Plastic Recycling",
+        "Metal Repurposing",
+        "Waste to Art"
+      ],
+      "typicalMaterials": ["Recycled Paper", "Fabric Scraps", "Metal Scrap", "Plastic Waste", "Glass"],
+      "matchedSupplierTypes": ["recycled-materials", "eco-packaging"]
+    }
+  ],
+  "supplierTypes": [
+    {
+      "id": "textile-yarn",
+      "name": "Textile & Yarn Suppliers",
+      "icon": "🧶",
+      "materials": ["Cotton Yarn", "Silk Thread", "Wool", "Jute", "Hemp Fabric"],
+      "certifications": ["GOTS Certified", "Organic Cotton", "Fair Trade"],
+      "servesCluster": ["handloom-textile"]
+    },
+    {
+      "id": "natural-dyes",
+      "name": "Natural Dye Producers",
+      "icon": "🌿",
+      "materials": ["Indigo", "Turmeric Dye", "Pomegranate", "Plant-based Dyes", "Eco Colors"],
+      "certifications": ["Eco-Certified", "Organic", "Chemical-Free"],
+      "servesCluster": ["handloom-textile", "folk-painting-decorative"]
+    },
+    {
+      "id": "recycled-materials",
+      "name": "Recycled Material Providers",
+      "icon": "♻️",
+      "materials": ["Recycled Paper", "Metal Scrap", "Fabric Scraps", "Plastic Waste", "Glass"],
+      "certifications": ["Zero Waste", "Circular Economy", "Green Certified"],
+      "servesCluster": ["upcycled-recycled", "clay-metal-stone"]
+    },
+    {
+      "id": "eco-packaging",
+      "name": "Eco-Packaging Vendors",
+      "icon": "📦",
+      "materials": ["Biodegradable Boxes", "Jute Bags", "Recycled Paper", "Cloth Wraps"],
+      "certifications": ["FSC Certified", "Biodegradable", "Plastic-Free"],
+      "servesCluster": ["handloom-textile", "craft-home-decor", "folk-painting-decorative"]
+    },
+    {
+      "id": "local-raw-materials",
+      "name": "Local Raw Material Hubs",
+      "icon": "🏪",
+      "materials": ["Clay", "Bamboo", "Wood", "Stone", "Cane", "Natural Varnish"],
+      "certifications": ["Locally Sourced", "Sustainable Harvesting", "Community Trade"],
+      "servesCluster": ["craft-home-decor", "clay-metal-stone", "folk-painting-decorative"]
+    },
+    {
+      "id": "digital-tools",
+      "name": "Digital Tool Providers",
+      "icon": "💻",
+      "materials": ["Photography Tools", "Social Media Kits", "Website Builders", "E-commerce Tools"],
+      "certifications": ["Digital India Partner", "Startup India"],
+      "servesCluster": []
+    }
+  ],
+  "aiMatchingRules": {
+    "handloom-textile": {
+      "priority": ["textile-yarn", "natural-dyes", "eco-packaging"],
+      "suggestion": "Based on your handloom & textile work, we recommend connecting with certified organic yarn suppliers and natural dye producers."
+    },
+    "craft-home-decor": {
+      "priority": ["local-raw-materials", "eco-packaging"],
+      "suggestion": "For wood, bamboo & cane crafts, local raw material hubs offer the best quality and delivery times."
+    },
+    "clay-metal-stone": {
+      "priority": ["local-raw-materials", "recycled-materials"],
+      "suggestion": "Clay and metal artisans benefit most from local raw material sources and recycled metal suppliers."
+    },
+    "folk-painting-decorative": {
+      "priority": ["natural-dyes", "local-raw-materials", "eco-packaging"],
+      "suggestion": "Folk artists get best results with natural dye producers for authentic, eco-friendly colors."
+    },
+    "upcycled-recycled": {
+      "priority": ["recycled-materials", "eco-packaging"],
+      "suggestion": "For upcycled crafts, recycled material providers offer diverse options and support circular economy."
+    }
+  }
+}
