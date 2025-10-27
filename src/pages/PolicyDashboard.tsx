@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Sidebar } from "@/components/navigation/Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import policyData from "@/data/policy_schemes.json";
 
 const iconMap = {
@@ -43,8 +44,9 @@ export default function PolicyDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-muted/20">
-      <Sidebar />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-muted/20">
+        <Sidebar />
       
       <main className="flex-1 overflow-auto">
         <div className="container mx-auto p-6 space-y-8 max-w-7xl">
@@ -329,6 +331,7 @@ export default function PolicyDashboard() {
           </Card>
         </div>
       </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
