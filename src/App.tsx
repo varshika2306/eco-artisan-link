@@ -4,9 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import SignIn from "./pages/SignIn";
-import RoleSelection from "./pages/RoleSelection";
-import ClusterSelection from "./pages/ClusterSelection";
 import Onboarding from "./pages/Onboarding";
 import ArtisanPortfolio from "./pages/ArtisanPortfolio";
 import MaterialHub from "./pages/MaterialHub";
@@ -32,9 +29,6 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/role-selection" element={<RoleSelection />} />
-          <Route path="/cluster-selection" element={<ClusterSelection />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/portfolio" element={<ArtisanPortfolio />} />
           <Route path="/hub" element={<MaterialHub />} />
