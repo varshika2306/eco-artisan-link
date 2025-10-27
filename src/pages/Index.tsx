@@ -32,17 +32,10 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/onboarding?role=artisan">
+              <Link to="/signin">
                 <Button size="lg" className="gradient-hero text-lg px-8 py-6 hover-lift">
                   <Users className="mr-2 h-5 w-5" />
-                  I'm an Artisan
-                </Button>
-              </Link>
-              
-              <Link to="/onboarding?role=supplier">
-                <Button size="lg" variant="outline" className="text-lg px-8 py-6 hover-lift border-2">
-                  <Package className="mr-2 h-5 w-5" />
-                  I'm a Supplier
+                  Get Started
                 </Button>
               </Link>
             </div>
