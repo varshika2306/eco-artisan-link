@@ -1,4 +1,4 @@
-import { Home, User, Package, Repeat, Sparkles, Users, BarChart3, Settings, LogOut } from "lucide-react";
+import { Home, User, Package, Repeat, Sparkles, Users, BarChart3, Settings, LogOut, FileText } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Sidebar as SidebarComponent,
@@ -40,6 +40,7 @@ export function Sidebar() {
 
   const commonItems = [
     { title: "Cluster Mapping", url: "/cluster-mapping", icon: Users },
+    { title: "Policy Dashboard", url: "/policy-dashboard", icon: FileText },
   ];
 
   const items = userRole === "artisan" ? artisanItems : supplierItems;

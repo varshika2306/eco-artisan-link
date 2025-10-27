@@ -1,0 +1,126 @@
+{
+  "schemes": [
+    {
+      "id": "odop",
+      "name": "ODOP - One District One Product",
+      "nameHindi": "एक जिला एक उत्पाद",
+      "icon": "MapPin",
+      "objective": "Promote traditional crafts and products unique to each district, creating sustainable livelihoods for artisans.",
+      "minglemakersAlignment": "Direct district-to-cluster mapping enables artisans to showcase region-specific crafts and connect with buyers nationwide.",
+      "metricsLabel": "Districts Mapped",
+      "metricsValue": 142,
+      "artisanCount": 3240,
+      "supplierCount": 890,
+      "impactIndicator": "92% sustainable sourcing",
+      "color": "saffron"
+    },
+    {
+      "id": "sfurti",
+      "name": "SFURTI - Fund for Regeneration of Traditional Industries",
+      "nameHindi": "पारंपरिक उद्योगों के पुनर्जनन के लिए कोष",
+      "icon": "Users",
+      "objective": "Organize traditional industries into clusters to improve competitiveness and create sustainable employment.",
+      "minglemakersAlignment": "Platform facilitates cluster formation, supplier matchmaking, and capacity building for traditional artisan groups.",
+      "metricsLabel": "Active Clusters",
+      "metricsValue": 38,
+      "artisanCount": 2180,
+      "supplierCount": 620,
+      "impactIndicator": "78% digital onboarding",
+      "color": "green"
+    },
+    {
+      "id": "ahvy",
+      "name": "AHVY - Ambedkar Hastshilp Vikas Yojana",
+      "nameHindi": "अम्बेडकर हस्तशिल्प विकास योजना",
+      "icon": "Palette",
+      "objective": "Provide financial assistance and skill development to marginalized artisan communities for handicraft production.",
+      "minglemakersAlignment": "Targeted support for underserved artisan communities through material access, storytelling tools, and market linkages.",
+      "metricsLabel": "Artisans Supported",
+      "metricsValue": 1560,
+      "artisanCount": 1560,
+      "supplierCount": 340,
+      "impactIndicator": "85% income growth",
+      "color": "blue"
+    },
+    {
+      "id": "make-in-india",
+      "name": "Make in India / Vocal for Local",
+      "nameHindi": "मेक इन इंडिया / स्थानीय के लिए मुखर",
+      "icon": "Flag",
+      "objective": "Promote indigenous manufacturing, handicrafts, and local products to boost the Indian economy.",
+      "minglemakersAlignment": "Direct artisan-to-consumer pathways reduce middlemen, showcasing 'Made in India' crafts globally with authentic storytelling.",
+      "metricsLabel": "Products Listed",
+      "metricsValue": 8420,
+      "artisanCount": 2890,
+      "supplierCount": 740,
+      "impactIndicator": "100% local sourcing",
+      "color": "saffron"
+    },
+    {
+      "id": "digital-india",
+      "name": "Digital India / e-Commerce Policy",
+      "nameHindi": "डिजिटल इंडिया / ई-कॉमर्स नीति",
+      "icon": "Globe",
+      "objective": "Empower citizens through digital literacy, infrastructure, and e-governance to enable inclusive growth.",
+      "minglemakersAlignment": "Low-literacy-friendly interface, multilingual support, and digital onboarding tools bring artisans online seamlessly.",
+      "metricsLabel": "Digital Adoption Rate",
+      "metricsValue": 76,
+      "artisanCount": 3450,
+      "supplierCount": 980,
+      "impactIndicator": "89% mobile usage",
+      "color": "green"
+    }
+  ],
+  "impactMetrics": {
+    "digitalInclusion": {
+      "label": "Digital Inclusion",
+      "value": 76,
+      "description": "Artisans successfully onboarded to digital platforms",
+      "trend": "+12% this quarter"
+    },
+    "circularEconomy": {
+      "label": "Circular Economy",
+      "value": 68,
+      "description": "Materials sourced from recycled or sustainable sources",
+      "trend": "+8% this quarter"
+    },
+    "economicImpact": {
+      "label": "Economic Impact",
+      "value": "₹42.5Cr",
+      "description": "Total transaction value on platform",
+      "trend": "+24% this quarter"
+    },
+    "socialImpact": {
+      "label": "Social Impact",
+      "value": "4,890",
+      "description": "Artisans empowered with sustainable livelihoods",
+      "trend": "+18% this quarter"
+    }
+  },
+  "districtMapping": [
+    {
+      "district": "Jaipur",
+      "state": "Rajasthan",
+      "craftType": "Block Printing",
+      "scheme": "ODOP",
+      "artisanCount": 320,
+      "supplierCount": 45
+    },
+    {
+      "district": "Kutch",
+      "state": "Gujarat",
+      "craftType": "Pottery & Ceramics",
+      "scheme": "SFURTI",
+      "artisanCount": 280,
+      "supplierCount": 38
+    },
+    {
+      "district": "Madhubani",
+      "state": "Bihar",
+      "craftType": "Madhubani Painting",
+      "scheme": "AHVY",
+      "artisanCount": 195,
+      "supplierCount": 22
+    }
+  ]
+}

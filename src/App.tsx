@@ -16,6 +16,7 @@ import AIStudio from "./pages/AIStudio";
 import CommunityHub from "./pages/CommunityHub";
 import ArtisanAnalytics from "./pages/ArtisanAnalytics";
 import ClusterMapping from "./pages/ClusterMapping";
+import PolicyDashboard from "./pages/PolicyDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/supplier/orders" element={<SupplierOrders />} />
           <Route path="/supplier/analytics" element={<SupplierAnalytics />} />
           <Route path="/cluster-mapping" element={<ClusterMapping />} />
+          <Route path="/policy-dashboard" element={<PolicyDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
