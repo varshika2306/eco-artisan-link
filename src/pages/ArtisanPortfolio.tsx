@@ -12,6 +12,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import { db, storage, auth } from "@/firebaseConfig";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  setDoc,
+} from "firebase/firestore";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "firebase/storage";
 import { 
   Play, Pause, Sparkles, Award, Leaf, Users, Plus, 
   Clock, Trophy, Target, Copy, Download, Share2, 
@@ -20,8 +33,76 @@ import {
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import artisanProfile from "@/assets/artisan-profile.jpg";
 import clustersData from "@/data/clusters_mapping.json";
+import { useNavigate } from "react-router-dom";
 
 const ArtisanPortfolio = () => {
+  const [crafts, setCrafts] = useState([]);
+const [newCraftName, setNewCraftName] = useState("");
+const [newCraftImage, setNewCraftImage] = useState<File | null>(null);
+const [uploading, setUploading] = useState(false);
+const navigate = useNavigate();
+const userEmail = auth.currentUser?.email || localStorage.getItem("userEmail");
+console.log("userEmail:", auth);
+// Fetch user crafts from Firestore
+useEffect(() => {
+  const fetchCrafts = async () => {
+    if (!userEmail) return;
+    const userRef = doc(db, "crafts", userEmail);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      setCrafts(data.crafts || []);
+    }
+  };
+  fetchCrafts();
+}, [userEmail]);
+
+// Handle Add Craft
+const handleAddCraft = async () => {
+  if (!newCraftName || !newCraftImage) {
+    toast.error("Please provide both name and image!");
+    return;
+  }
+
+  try {
+    setUploading(true);
+
+    // Upload image to Firebase Storage
+    const imageRef = ref(storage, `crafts/${userEmail}/${Date.now()}-${newCraftImage.name}`);
+    await uploadBytes(imageRef, newCraftImage);
+    const downloadURL = await getDownloadURL(imageRef);
+
+    const newCraft = {
+  id: Date.now().toString(),
+  name: newCraftName,
+  imageUrl: downloadURL,
+  tags: tags.length > 0 ? tags : ["Handmade"], // default tag if none
+};
+
+
+    // ✅ Use setDoc with merge to create the user document if it doesn't exist
+    const userRef = doc(db, "crafts", userEmail);
+    await setDoc(
+      userRef,
+      {
+        crafts: arrayUnion(newCraft),
+      },
+      { merge: true }
+    );
+
+    // Update UI immediately
+    setCrafts((prev) => [...prev, newCraft]);
+    toast.success("Craft added successfully!");
+    setNewCraftName("");
+    setNewCraftImage(null);
+  } catch (err) {
+    console.error("Error adding craft:", err);
+    toast.error("Failed to add craft!");
+  } finally {
+    setUploading(false);
+  }
+};
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedStory, setGeneratedStory] = useState("");
@@ -34,21 +115,37 @@ const ArtisanPortfolio = () => {
     { year: "2022", title: "Eco Certified", icon: "🌿", description: "100% sustainable practices" },
     { year: "2024", title: "Community Leader", icon: "👥", description: "Mentoring 12 artisans" },
   ]);
-  const [crafts, setCrafts] = useState([
-    { id: 1, name: "Terracotta Pottery", tags: ["Handmade", "Eco-friendly", "Traditional"], image: null },
-    { id: 2, name: "Clay Vessels", tags: ["Sustainable", "Artisan", "Heritage"], image: null },
-    { id: 3, name: "Decorative Items", tags: ["Contemporary", "Organic", "Handcrafted"], image: null },
-  ]);
+  // const [crafts, setCrafts] = useState([
+  //   { id: 1, name: "Terracotta Pottery", tags: ["Handmade", "Eco-friendly", "Traditional"], image: null },
+  //   { id: 2, name: "Clay Vessels", tags: ["Sustainable", "Artisan", "Heritage"], image: null },
+  //   { id: 3, name: "Decorative Items", tags: ["Contemporary", "Organic", "Handcrafted"], image: null },
+  // ]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const waveformRef = useRef<HTMLDivElement>(null);
-  
-  const userName = localStorage.getItem("userName") || "Artisan";
-  const userLocation = localStorage.getItem("userLocation") || "India";
-  const userSpecialty = localStorage.getItem("userSpecialty") || "Traditional Crafts";
-  const userCluster = localStorage.getItem("userCluster") || "";
-  const userSubCategory = localStorage.getItem("userSubCategory") || "";
-  
+  const storedUser = localStorage.getItem("currentUser");
+const user = storedUser ? JSON.parse(storedUser) : null;
+
+const userName = user?.name || "Artisan";
+const userLocation = user?.location || "India";
+const userSpecialty = user?.specialty || "Traditional Crafts";
+const userCluster = user?.cluster || "";
+const userSubCategory = user?.subCategory || "";
+const userImage = user?.profilePic || artisanProfile;
+  const [newTag, setNewTag] = useState("");
+const [tags, setTags] = useState([]);
+
+const handleAddTag = () => {
+  if (newTag.trim() && !tags.includes(newTag.trim())) {
+    setTags([...tags, newTag.trim()]);
+    setNewTag("");
+  }
+};
+
+const handleRemoveTag = (tagToRemove) => {
+  setTags(tags.filter((t) => t !== tagToRemove));
+};
+
   const clusterInfo = clustersData.artisanClusters.find(c => c.id === userCluster);
 
   const badges = [
@@ -72,6 +169,7 @@ const ArtisanPortfolio = () => {
   ];
 
   useEffect(() => {
+    console.log("user",localStorage.getItem("currentUser"));
     if (isPlaying && audioRef.current) {
       const interval = setInterval(() => {
         if (audioRef.current) {
@@ -143,7 +241,7 @@ const ArtisanPortfolio = () => {
           >
             <h1 className="font-heading text-2xl font-bold">My Portfolio</h1>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">Edit Profile</Button>
+              <Button variant="outline" size="sm" onClick={() => navigate("/editprofile")}>Edit Profile</Button>
               <Button variant="outline" size="sm">Dark Mode</Button>
             </div>
           </motion.div>
@@ -163,7 +261,7 @@ const ArtisanPortfolio = () => {
               >
                 <div className="w-32 h-32 rounded-2xl overflow-hidden ring-4 ring-primary/30 animate-pulse-glow">
                   <img 
-                    src={artisanProfile} 
+                    src={userImage} 
                     alt="Artisan profile"
                     className="w-full h-full object-cover"
                   />
@@ -238,192 +336,8 @@ const ArtisanPortfolio = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 card-glow">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="font-heading text-xl font-semibold">My Craft Story</h2>
-                  <p className="text-sm text-muted-foreground">The journey of tradition and innovation</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={togglePlay}
-                  className="hover-lift"
-                >
-                  {isPlaying ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
-                  {isPlaying ? "Pause" : "Play"}
-                </Button>
-              </div>
-              
-              <div className="relative h-24 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-lg flex items-center px-4 overflow-hidden">
-                {isPlaying && (
-                  <motion.div
-                    animate={{ x: [-1000, 1000] }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                    className="absolute inset-y-0 w-32 bg-gradient-to-r from-transparent via-primary/30 to-transparent"
-                  />
-                )}
-                <div className="flex-1 h-2 bg-primary/20 rounded-full overflow-hidden relative z-10">
-                  <motion.div 
-                    className="h-full bg-primary"
-                    style={{ width: `${progress}%` }}
-                    transition={{ duration: 0.1 }}
-                  />
-                </div>
-              </div>
-              
-              <p className="text-sm text-muted-foreground mt-4 leading-relaxed italic">
-                "From the clay of my village to the hands of collectors worldwide, 
-                my journey as a potter spans three generations of tradition..."
-              </p>
-              
-              <audio ref={audioRef} src="/audio/sample_story.mp3" />
-            </Card>
-          </motion.div>
 
-          {/* Smart Craft Gallery */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading text-2xl font-bold">My Crafts</h2>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="gradient-hero hover-lift">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add New Craft
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New Craft</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Craft Name</Label>
-                      <Input placeholder="Enter craft name" />
-                    </div>
-                    <div>
-                      <Label>Upload Image</Label>
-                      <Input type="file" accept="image/*" />
-                    </div>
-                    <Button className="w-full">Add Craft</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {crafts.map((craft, index) => (
-                <motion.div
-                  key={craft.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                >
-                  <Card className="p-4 card-glow hover-lift cursor-pointer group overflow-hidden">
-                    <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
-                      <Sparkles className="h-12 w-12 text-primary group-hover:scale-110 transition-transform" />
-                      <motion.div
-                        whileHover={{ opacity: 1 }}
-                        initial={{ opacity: 0 }}
-                        className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4"
-                      >
-                        <p className="text-white text-sm font-medium">View Details</p>
-                      </motion.div>
-                    </div>
-                    <h3 className="font-semibold mb-2">{craft.name}</h3>
-                    <div className="flex flex-wrap gap-1">
-                      {craft.tags.map((tag, i) => (
-                        <Badge key={i} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Journey Timeline */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading text-2xl font-bold">My Journey</h2>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Milestone
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add New Milestone</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Year</Label>
-                      <Input type="number" placeholder="2024" />
-                    </div>
-                    <div>
-                      <Label>Title</Label>
-                      <Input placeholder="Achievement title" />
-                    </div>
-                    <div>
-                      <Label>Description</Label>
-                      <Textarea placeholder="Describe your achievement" />
-                    </div>
-                    <Button className="w-full">Add Milestone</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="relative space-y-6 pl-8 border-l-2 border-primary/30">
-              {milestones.map((milestone, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="relative"
-                >
-                  <div className="absolute -left-11 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-lg shadow-lg">
-                    {milestone.icon}
-                  </div>
-                  <Card className="p-4 card-glow hover-lift">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="text-xs">{milestone.year}</Badge>
-                          <h3 className="font-semibold">{milestone.title}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Generate My Story */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Card className="p-6 card-glow">
+            <Card className="p-6 card-glow ">
               <h2 className="font-heading text-xl font-semibold mb-4">Generate My Story with AI</h2>
               
               <div className="space-y-4">
@@ -503,6 +417,280 @@ const ArtisanPortfolio = () => {
                 </AnimatePresence>
               </div>
             </Card>
+
+
+            <Card className="p-6 card-glow ">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-heading text-xl font-semibold">My Craft Story</h2>
+                  <p className="text-sm text-muted-foreground">The journey of tradition and innovation</p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={togglePlay}
+                  className="hover-lift"
+                >
+                  {isPlaying ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+                  {isPlaying ? "Pause" : "Play"}
+                </Button>
+              </div>
+              
+              <div className="relative h-24 bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-lg flex items-center px-4 overflow-hidden">
+                {isPlaying && (
+                  <motion.div
+                    animate={{ x: [-1000, 1000] }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                    className="absolute inset-y-0 w-32 bg-gradient-to-r from-transparent via-primary/30 to-transparent"
+                  />
+                )}
+                <div className="flex-1 h-2 bg-primary/20 rounded-full overflow-hidden relative z-10">
+                  <motion.div 
+                    className="h-full bg-primary"
+                    style={{ width: `${progress}%` }}
+                    transition={{ duration: 0.1 }}
+                  />
+                </div>
+              </div>
+              
+              <p className="text-sm text-muted-foreground mt-4 leading-relaxed italic">
+                "From the clay of my village to the hands of collectors worldwide, 
+                my journey as a potter spans three generations of tradition..."
+              </p>
+              
+              <audio ref={audioRef} src="/audio/sample_story.mp3" />
+            </Card>
+          </motion.div>
+
+          {/* Smart Craft Gallery */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold">My Crafts</h2>
+              <Dialog>
+  <DialogTrigger asChild>
+    <Button className="gradient-hero hover-lift">
+      <Plus className="mr-2 h-4 w-4" />
+      Add New Craft
+    </Button>
+  </DialogTrigger>
+
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Add New Craft</DialogTitle>
+    </DialogHeader>
+
+    <div className="space-y-4">
+      {/* Craft Name */}
+      <div>
+        <Label>Craft Name</Label>
+        <Input
+          placeholder="Enter craft name"
+          value={newCraftName}
+          onChange={(e) => setNewCraftName(e.target.value)}
+        />
+      </div>
+
+      {/* Upload Image */}
+      <div>
+        <Label>Upload Image</Label>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setNewCraftImage(e.target.files ? e.target.files[0] : null)
+          }
+        />
+      </div>
+
+      {/* 🏷️ Tags Section */}
+      <div>
+        <Label>Tags</Label>
+        <div className="flex gap-2 mt-2">
+          <Input
+            placeholder="Add a tag (e.g., Handmade)"
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddTag();
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleAddTag}
+          >
+            Add
+          </Button>
+        </div>
+
+        {/* Show existing tags */}
+        <div className="flex flex-wrap gap-2 mt-2">
+          {tags.map((tag, i) => (
+            <Badge
+              key={i}
+              variant="secondary"
+              className="flex items-center gap-1"
+            >
+              {tag}
+              <button
+                type="button"
+                onClick={() => handleRemoveTag(tag)}
+                className="hover:text-destructive"
+              >
+                ×
+              </button>
+            </Badge>
+          ))}
+        </div>
+      </div>
+
+      {/* Submit */}
+      <Button
+        className="w-full"
+        onClick={handleAddCraft}
+        disabled={uploading}
+      >
+        {uploading ? "Uploading..." : "Add Craft"}
+      </Button>
+    </div>
+  </DialogContent>
+</Dialog>
+
+
+            </div>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {crafts.map((craft, index) => (
+                <motion.div
+                  key={craft.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                >
+                  <Card className="p-4 card-glow hover-lift cursor-pointer group overflow-hidden">
+  <div className="aspect-square bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
+    {/* 🖼️ Display uploaded image */}
+    {craft.imageUrl ? (
+      <img
+        src={craft.imageUrl}
+        alt={craft.name}
+        className="object-cover w-full h-full rounded-xl transition-transform duration-300 group-hover:scale-105"
+      />
+    ) : (
+      <div className="flex items-center justify-center w-full h-full text-muted-foreground">
+        No Image
+      </div>
+    )}
+
+    {/* 🔥 Hover overlay */}
+    <motion.div
+      whileHover={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4 transition-opacity"
+    >
+      <p className="text-white text-sm font-medium">View Details</p>
+    </motion.div>
+  </div>
+
+  {/* 🏷️ Craft Name & Tags */}
+  <h3 className="font-semibold mb-2 truncate">{craft.name}</h3>
+  <div className="flex flex-wrap gap-1">
+    {craft.tags?.map((tag, i) => (
+      <Badge key={i} variant="secondary" className="text-xs">
+        {tag}
+      </Badge>
+    ))}
+  </div>
+</Card>
+
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Journey Timeline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="font-heading text-2xl font-bold">My Journey</h2>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Milestone
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Milestone</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Year</Label>
+                      <Input type="number" placeholder="2024" />
+                    </div>
+                    <div>
+                      <Label>Title</Label>
+                      <Input placeholder="Achievement title" />
+                    </div>
+                    <div>
+                      <Label>Description</Label>
+                      <Textarea placeholder="Describe your achievement" />
+                    </div>
+                    <Button className="w-full">Add Milestone</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="relative space-y-6 pl-8 border-l-2 border-primary/30">
+              {milestones.map((milestone, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="relative"
+                >
+                  <div className="absolute -left-11 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-lg shadow-lg">
+                    {milestone.icon}
+                  </div>
+                  <Card className="p-4 card-glow hover-lift">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="outline" className="text-xs">{milestone.year}</Badge>
+                          <h3 className="font-semibold">{milestone.title}</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Generate My Story */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            
           </motion.div>
 
           {/* Recognition & Badges */}

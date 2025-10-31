@@ -18,6 +18,10 @@ import ArtisanAnalytics from "./pages/ArtisanAnalytics";
 import ClusterMapping from "./pages/ClusterMapping";
 import PolicyDashboard from "./pages/PolicyDashboard";
 import NotFound from "./pages/NotFound";
+import SignupPage from "./pages/signup";
+import LoginPage from "./pages/login";
+import EditProfile from "./pages/EditProfile";
+import ClusterPeopleList from "./pages/ClusterPeopleList";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +46,10 @@ const App = () => (
           <Route path="/supplier/analytics" element={<SupplierAnalytics />} />
           <Route path="/cluster-mapping" element={<ClusterMapping />} />
           <Route path="/policy-dashboard" element={<PolicyDashboard />} />
+          <Route path="/register" element={<SignupPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/editprofile" element={<EditProfile />} />
+        <Route path="/clusters/:clusterId" element={<ClusterPeopleList />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

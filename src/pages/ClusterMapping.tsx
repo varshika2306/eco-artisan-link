@@ -7,10 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Network, Users, Package, Sparkles } from "lucide-react";
 import clustersData from "@/data/clusters_mapping.json";
 import { ClusterMatchingVisual } from "@/components/navigation/ClusterMatchingVisual";
+import { useNavigate } from "react-router-dom";
 
 const ClusterMapping = () => {
   const userCluster = localStorage.getItem("userCluster") || "";
-
+const navigate = useNavigate();
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -52,10 +53,13 @@ const ClusterMapping = () => {
             <TabsContent value="artisan" className="space-y-4 mt-6">
               <div className="grid gap-4 md:grid-cols-2">
                 {clustersData.artisanClusters.map((cluster) => (
-                  <Card 
-                    key={cluster.id} 
-                    className={`p-6 card-glow hover-lift ${userCluster === cluster.id ? 'border-2 border-primary' : ''}`}
-                  >
+                  <Card
+  key={cluster.id}
+  onClick={() => navigate(`/clusters/${cluster.id}`)}
+  className={`p-6 card-glow hover-lift cursor-pointer transition hover:shadow-lg ${
+    userCluster === cluster.id ? "border-2 border-primary" : ""
+  }`}
+>
                     <div className="flex items-start gap-4 mb-4">
                       <span className="text-5xl">{cluster.icon}</span>
                       <div className="flex-1">

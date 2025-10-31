@@ -113,10 +113,10 @@ export function Sidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={switchRole} tooltip="Switch Role">
+                {/* <SidebarMenuButton onClick={switchRole} tooltip="Switch Role">
                   <Repeat className="h-5 w-5" />
                   {!collapsed && <span>Switch to {userRole === "artisan" ? "Supplier" : "Artisan"}</span>}
-                </SidebarMenuButton>
+                </SidebarMenuButton> */}
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => navigate("/settings")} tooltip="Settings">
