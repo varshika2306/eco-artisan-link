@@ -19,7 +19,9 @@ export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state: sidebarState } = useSidebar();
-  const userRole = localStorage.getItem("userRole") || "artisan";
+  const user = JSON.parse(localStorage.getItem("CurrentUser"));
+  const userRole = user?.role;
+  
   const collapsed = sidebarState === "collapsed";
 
   const artisanItems = [
