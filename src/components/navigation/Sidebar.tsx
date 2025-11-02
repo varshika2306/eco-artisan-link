@@ -19,8 +19,10 @@ export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state: sidebarState } = useSidebar();
-  const user = JSON.parse(localStorage.getItem("CurrentUser"));
-  const userRole = user?.role;
+  const storedUser = localStorage.getItem("currentUser");
+const user = storedUser ? JSON.parse(storedUser) : null;
+const userRole = user?.role ;
+  console.log("userRole",userRole,user)
   
   const collapsed = sidebarState === "collapsed";
 
