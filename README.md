@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+# MingleMakers 🌿✨
 
-## Project info
+**Website / Prototype:** [Live Demo](https://minglemakers-demo-02.web.app)
 
-**URL**: https://lovable.dev/projects/ee0baf1a-895c-40bd-a804-b7589447e744
+---
 
-## How can I edit this code?
+## **Overview**
 
-There are several ways of editing your application.
+MingleMakers is a **digital ecosystem designed to empower artisans and suppliers** by solving the invisible bottleneck in the craft industry: **raw material procurement**. While traditional platforms focus on selling finished products, MingleMakers addresses the **supply-side challenge**, ensuring artisans have access to quality materials at affordable prices while fostering collaboration.
 
-**Use Lovable**
+The platform introduces a **dual-track approach**:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ee0baf1a-895c-40bd-a804-b7589447e744) and start prompting.
+1. **Artisan Track** – Connects artisans to suppliers, facilitates barter & swap, and provides access to eco-friendly raw materials.  
+2. **Supplier Track** – Allows suppliers to reach artisans directly, expand visibility, and build a sustainable supply chain.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## **Key Features**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### **For Artisans**
+- **Raw Material Discovery** – Find suppliers offering quality materials at competitive prices.  
+- **Barter & Swap Community** – Join local artisan clusters to exchange or share materials within a trusted network.  
+- **Sustainable Materials Access** – Easily source eco-friendly materials to support green production.  
+- **Peer Networking** – Connect with artisans sharing similar values, craft techniques, and supply needs.  
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### **For Suppliers**
+- **Direct Artisan Connections** – Reach artisans actively seeking materials.  
+- **Supplier Visibility Dashboard** – Showcase products and stock availability.  
+- **Community Engagement** – Participate in artisan clusters and support sustainable practices.
 
-Follow these steps:
+### **Shared Platform Benefits**
+- **Dual Track Approach** – Both artisans and suppliers benefit simultaneously.  
+- **Sustainability Metrics Tracking** – Monitor % artisans sourcing eco-materials, waste reduction, and inclusion of women/rural artisans.  
+- **Smart Community Clustering** – Artisans are grouped based on material requirements and shared interests to encourage collaboration.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## **Technical Overview**
 
-# Step 3: Install the necessary dependencies.
-npm i
+- **Frontend:** React.js (SPA)  
+- **Backend:** Firebase Hosting (MVP)  
+- **State Management:** React Context / Redux (if used)  
+- **Database / Storage:** Firebase Firestore (for user profiles and clustering)  
+- **Deployment:** Firebase Hosting  
+- **Source Code:** [GitHub Repository](https://github.com/varshika2306/eco-artisan-link)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+---
 
-**Edit a file directly in GitHub**
+## **Why MingleMakers Stands Out**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Supply-Side Focus:** Unlike typical marketplaces that only focus on selling finished goods, we empower artisans to **source materials efficiently**.  
+- **Dual Track Ecosystem:** Both **artisans and suppliers** benefit from the platform simultaneously, creating a **self-sustaining digital community**.  
+- **Community & Collaboration:** The barter and swap system promotes **peer-to-peer sharing**, reducing waste and cost.  
+- **Sustainability-Driven:** Eco-material sourcing and inclusion of rural and women artisans ensures social and environmental impact.  
+- **Hackathon-Ready MVP:** Fully functional prototype hosted on Firebase, showcasing 2–3 working features:  
+  - Raw material discovery  
+  - Artisan barter & swap community  
+  - Supplier visibility & engagement
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## **How to Use**
 
-## What technologies are used for this project?
+1. Visit the **Live Demo**: [https://minglemakers-demo-02.web.app](https://minglemakers-demo-02.web.app)  
+2. Sign up as **Artisan** or **Supplier**.  
+3. Explore features relevant to your track:  
+   - Artisans can browse suppliers, join barter clusters, and connect with peers.  
+   - Suppliers can manage listings, engage with artisans, and track impact.  
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## **Future Enhancements**
 
-## How can I deploy this project?
+- **Real-time chat & negotiation** between artisans and suppliers.  
+- **Advanced sustainability analytics dashboard** for tracking eco-impact.  
+- **Mobile app integration** for wider reach and offline access.  
+- **AI-driven material recommendations** based on craft type and location.
 
-Simply open [Lovable](https://lovable.dev/projects/ee0baf1a-895c-40bd-a804-b7589447e744) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## **Team & Contact**
 
-Yes, you can!
+- **Project Name:** MingleMakers  
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **GitHub:** [https://github.com/varshika2306/eco-artisan-link](https://github.com/varshika2306/eco-artisan-link)  
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+## **License**
+
+MIT License © 2025 MingleMakers
+
+---
+
+
+
