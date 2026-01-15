@@ -1,16 +1,16 @@
-// src/components/auth/LoginForm.jsx
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/firebaseConfig";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const LoginForm = () => {
   const [role, setRole] = useState("artisan");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,33 +22,59 @@ const LoginForm = () => {
     }
   }, [location]);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
-      // Sign in user with Firebase Auth
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      // Sign in with Lovable Cloud Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // Fetch user data from Firestore
-      const userDoc = await getDoc(doc(db, "users", user.email));
+      if (authError) throw authError;
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        if (userData.role !== role) {
-          alert(`This account is not registered as a ${role}.`);
-          return;
+      if (authData.user) {
+        // Fetch user role from database
+        const { data: roleData, error: roleError } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", authData.user.id)
+          .single();
+
+        if (roleError) {
+          console.error("Error fetching role:", roleError);
         }
 
-        localStorage.setItem("currentUser", JSON.stringify(userData));
-        alert(`Welcome back, ${userData.name}!`);
+        const userRole = roleData?.role || role;
 
-        navigate(role === "artisan" ? "/portfolio" : "/supplier");
-      } else {
-        alert("User data not found in database!");
+        // Fetch profile data
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", authData.user.id)
+          .single();
+
+        // Store user data in localStorage
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify({
+            uid: authData.user.id,
+            email: authData.user.email,
+            name: profileData?.full_name || authData.user.email,
+            role: userRole,
+          })
+        );
+
+        toast.success(`Welcome back, ${profileData?.full_name || authData.user.email}!`);
+        navigate(userRole === "artisan" ? "/portfolio" : "/supplier");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      alert("Invalid email or password!");
+      toast.error(error.message || "Invalid email or password!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -74,6 +100,7 @@ const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -85,16 +112,24 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
         </div>
 
-        <Button type="submit" className="w-full mt-6">
-          {role === "artisan" ? "Login as Artisan" : "Login as Supplier"}
+        <Button type="submit" className="w-full mt-6" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            role === "artisan" ? "Login as Artisan" : "Login as Supplier"
+          )}
         </Button>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link
             to={`/register?role=${role}`}
             className="text-primary font-medium hover:underline"

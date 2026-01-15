@@ -1,4 +1,3 @@
-// src/pages/CommunityHub.tsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sidebar } from "@/components/navigation/Sidebar";
@@ -30,268 +29,209 @@ import {
   Trash
 } from "lucide-react";
 
-import { db } from "@/firebaseConfig";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  doc,
-  serverTimestamp,
-  query,
-  orderBy,
-  onSnapshot,
-  setDoc,
-  getDoc,
-  increment,
-} from "firebase/firestore";
+interface Post {
+  id: string;
+  author: string;
+  authorId: string;
+  avatar: string;
+  content: string;
+  cluster: string;
+  likes: number;
+  comments: Comment[];
+  createdAt: string;
+}
+
+interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
 
 const CommunityHub: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [newPost, setNewPost] = useState("");
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
 
   // parse current user from localStorage
   const stored = localStorage.getItem("currentUser");
   const currentUser = stored ? JSON.parse(stored) : null;
-const [commentBoxes, setCommentBoxes] = useState<{ [key: string]: boolean }>({});
-const [newComments, setNewComments] = useState<{ [key: string]: string }>({});
-const [comments, setComments] = useState<{ [key: string]: any[] }>({});
-useEffect(() => {
-  const unsubscribes: (() => void)[] = [];
+  
+  const [commentBoxes, setCommentBoxes] = useState<{ [key: string]: boolean }>({});
+  const [newComments, setNewComments] = useState<{ [key: string]: string }>({});
+  const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
 
-  posts.forEach((post) => {
-    const commentsRef = collection(db, "posts", post.id, "comments");
-    const q = query(commentsRef, orderBy("createdAt", "asc"));
+  // Load posts from localStorage
+  useEffect(() => {
+    const storedPosts = localStorage.getItem("community_posts");
+    if (storedPosts) {
+      setPosts(JSON.parse(storedPosts));
+    } else {
+      // Initialize with sample posts
+      const samplePosts: Post[] = [
+        {
+          id: "1",
+          author: "Priya Sharma",
+          authorId: "sample1",
+          avatar: "PS",
+          content: "Just finished my new handloom collection! Can't wait to share it with everyone. 🎨",
+          cluster: "Textiles",
+          likes: 12,
+          comments: [],
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "2",
+          author: "Rajesh Kumar",
+          authorId: "sample2",
+          avatar: "RK",
+          content: "Looking for collaboration on eco-friendly packaging solutions. Any suppliers interested?",
+          cluster: "Pottery",
+          likes: 8,
+          comments: [],
+          createdAt: new Date().toISOString(),
+        },
+      ];
+      setPosts(samplePosts);
+      localStorage.setItem("community_posts", JSON.stringify(samplePosts));
+    }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setComments((prev) => ({
-        ...prev,
-        [post.id]: snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })),
-      }));
-    });
+    // Load user likes
+    if (currentUser?.uid) {
+      const storedLikes = localStorage.getItem(`likes_${currentUser.uid}`);
+      if (storedLikes) {
+        setUserLikes(JSON.parse(storedLikes));
+      }
+    }
+  }, [currentUser?.uid]);
 
-    unsubscribes.push(unsubscribe);
-  });
+  // Save posts to localStorage whenever they change
+  const savePosts = (updatedPosts: Post[]) => {
+    setPosts(updatedPosts);
+    localStorage.setItem("community_posts", JSON.stringify(updatedPosts));
+  };
 
-  return () => unsubscribes.forEach((unsub) => unsub());
-}, [posts]);
-
-
-// Toggle comment box visibility
-const toggleComments = (postId: string) => {
-  setCommentBoxes((prev) => ({
-    ...prev,
-    [postId]: !prev[postId],
-  }));
-};
-const handleDeleteComment = async (postId: string, commentId: string) => {
-  try {
-    await deleteDoc(doc(db, "posts", postId, "comments", commentId));
-    toast.success("Comment deleted!");
-  } catch (err) {
-    console.error("Error deleting comment:", err);
-    toast.error("Failed to delete comment.");
-  }
-};
-
-// Handle adding a comment
-const handleAddComment = async (postId: string) => {
-  const comment = newComments[postId]?.trim();
-  if (!comment) return toast.error("Comment cannot be empty!");
-
-  try {
-    const storedUser = localStorage.getItem("currentUser");
-    const user = storedUser ? JSON.parse(storedUser) : null;
-
-    const postRef = doc(db, "posts", postId);
-    const commentData = {
-      author: user?.name || "Anonymous",
-      text: comment,
-      createdAt: serverTimestamp(),
-    };
-
-    // Add to a subcollection for comments
-    await addDoc(collection(postRef, "comments"), commentData);
-
-    toast.success("Comment added!");
-
-    setNewComments((prev) => ({ ...prev, [postId]: "" }));
-  } catch (err) {
-    console.error("Error adding comment:", err);
-    toast.error("Failed to add comment.");
-  }
-};
-
-  // helper to format Firestore timestamp or fallback
-  const formatTime = (createdAt: any) => {
+  const formatTime = (createdAt: string) => {
     if (!createdAt) return "";
-    // Firestore Timestamp has toDate method
     try {
-      if (createdAt.toDate) {
-        return createdAt.toDate().toLocaleString();
-      }
-      // if a plain ISO string
-      if (typeof createdAt === "string") {
-        return new Date(createdAt).toLocaleString();
-      }
-      return String(createdAt);
+      return new Date(createdAt).toLocaleString();
     } catch {
       return "";
     }
   };
-const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // fetch posts ordered by createdAt desc
-        const postsRef = collection(db, "posts");
-        const q = query(postsRef, orderBy("createdAt", "desc"));
-        const snapshot = await getDocs(q);
-        const postList = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-        setPosts(postList);
-
-        // fetch users
-        const usersRef = collection(db, "users");
-        const userSnap = await getDocs(usersRef);
-        const userList = userSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        setUsers(userList);
-
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        toast.error("Failed to load community data.");
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-  const fetchUserLikes = async () => {
-    if (!currentUser) return;
-
-    const likesMap: { [key: string]: boolean } = {};
-
-    for (const post of posts) {
-      const likeDocRef = doc(db, "posts", post.id, "likes", currentUser.uid);
-      const likeDocSnap = await getDoc(likeDocRef);
-      if (likeDocSnap.exists()) likesMap[post.id] = true;
-    }
-
-    setUserLikes(likesMap);
+  const toggleComments = (postId: string) => {
+    setCommentBoxes((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
   };
 
-  if (posts.length > 0) {
-    fetchUserLikes();
-  }
-}, [posts, currentUser]);
+  const handleDeleteComment = (postId: string, commentId: string) => {
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: post.comments.filter((c) => c.id !== commentId),
+        };
+      }
+      return post;
+    });
+    savePosts(updatedPosts);
+    toast.success("Comment deleted!");
+  };
 
+  const handleAddComment = (postId: string) => {
+    const comment = newComments[postId]?.trim();
+    if (!comment) return toast.error("Comment cannot be empty!");
 
-  const handleLike = async (postId: string) => {
-  try {
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      author: currentUser?.name || "Anonymous",
+      text: comment,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          comments: [...post.comments, newComment],
+        };
+      }
+      return post;
+    });
+
+    savePosts(updatedPosts);
+    setNewComments((prev) => ({ ...prev, [postId]: "" }));
+    toast.success("Comment added!");
+  };
+
+  const handleLike = (postId: string) => {
     if (!currentUser) {
       toast.error("Please login to like posts.");
       return;
     }
 
-    const postRef = doc(db, "posts", postId);
-    const likeRef = doc(collection(postRef, "likes"), currentUser.uid);
+    const alreadyLiked = userLikes[postId];
+    const updatedLikes = { ...userLikes, [postId]: !alreadyLiked };
+    setUserLikes(updatedLikes);
+    localStorage.setItem(`likes_${currentUser.uid}`, JSON.stringify(updatedLikes));
 
-    const userLiked = userLikes[postId];
+    const updatedPosts = posts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          likes: alreadyLiked ? post.likes - 1 : post.likes + 1,
+        };
+      }
+      return post;
+    });
+    savePosts(updatedPosts);
+  };
 
-    if (userLiked) {
-      // Unlike
-      await deleteDoc(likeRef);
-      await updateDoc(postRef, { likes: increment(-1) });
-      setUserLikes((prev) => ({ ...prev, [postId]: false }));
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId ? { ...p, likes: (p.likes || 1) - 1 } : p
-        )
-      );
-    } else {
-      // Like
-      await setDoc(likeRef, {
-        userId: currentUser.uid,
-        userName: currentUser.name,
-        createdAt: serverTimestamp(),
-      });
-      await updateDoc(postRef, { likes: increment(1) });
-      setUserLikes((prev) => ({ ...prev, [postId]: true }));
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId ? { ...p, likes: (p.likes || 0) + 1 } : p
-        )
-      );
-    }
-  } catch (err) {
-    console.error("Error toggling like:", err);
-    toast.error("Failed to process like.");
-  }
-};
-
-
-
-  const handleDelete = async (postId: string) => {
-    try {
-      await deleteDoc(doc(db, "posts", postId));
-      setPosts((prev) => prev.filter((p) => p.id !== postId));
-      toast.success("Post deleted!");
-    } catch (err) {
-      console.error("Error deleting post:", err);
-      toast.error("Failed to delete post.");
-    }
+  const handleDelete = (postId: string) => {
+    const updatedPosts = posts.filter((p) => p.id !== postId);
+    savePosts(updatedPosts);
+    toast.success("Post deleted!");
   };
 
   const joinCluster = (clusterName: string) => {
     toast.success(`Joined ${clusterName}! Welcome to the community.`);
   };
 
-  const createPost = async () => {
+  const createPost = () => {
     if (!newPost.trim()) {
       toast.error("Post content cannot be empty.");
       return;
     }
     setLoading(true);
-    try {
-      const avatar = currentUser?.name
-        ? currentUser.name
-            .split(" ")
-            .map((n: string) => n[0].toUpperCase())
-            .slice(0, 2)
-            .join("")
-        : "AA";
 
-      const docRef = await addDoc(collection(db, "posts"), {
-        author: currentUser?.name || "Anonymous",
-        authorId: currentUser?.uid || "",
-        avatar,
-        content: newPost.trim(),
-        cluster: currentUser?.cluster || "General",
-        likes: 0,
-        comments: 0,
-        createdAt: serverTimestamp(),
-      });
+    const avatar = currentUser?.name
+      ? currentUser.name
+          .split(" ")
+          .map((n: string) => n[0].toUpperCase())
+          .slice(0, 2)
+          .join("")
+      : "AA";
 
-      // fetch the created document (to get server timestamp)
-      const snapshot = await getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc")));
-      setPosts(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const newPostData: Post = {
+      id: Date.now().toString(),
+      author: currentUser?.name || "Anonymous",
+      authorId: currentUser?.uid || "",
+      avatar,
+      content: newPost.trim(),
+      cluster: currentUser?.cluster || "General",
+      likes: 0,
+      comments: [],
+      createdAt: new Date().toISOString(),
+    };
 
-      toast.success("Post added successfully!");
-      setNewPost("");
-    } catch (err) {
-      console.error("Error adding post:", err);
-      toast.error("Error creating post.");
-    } finally {
-      setLoading(false);
-    }
+    savePosts([newPostData, ...posts]);
+    toast.success("Post added successfully!");
+    setNewPost("");
+    setLoading(false);
   };
 
   // sample static sidebar data
@@ -352,7 +292,7 @@ const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
                       </DialogHeader>
                       <div className="space-y-4">
                         <Textarea placeholder="What's on your mind?" rows={5} value={newPost} onChange={(e) => setNewPost(e.target.value)} />
-                        <Button className="w-full" onClick={createPost}>
+                        <Button className="w-full" onClick={createPost} disabled={loading}>
                           {loading ? "Posting..." : "Post"}
                         </Button>
                       </div>
@@ -395,30 +335,27 @@ const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
 
                         <div className="flex items-center gap-4 pt-4 border-t border-border">
                           <Button
-  variant="ghost"
-  size="sm"
-  onClick={() => handleLike(post.id)}
-  className="flex items-center gap-2"
->
-  {userLikes[post.id] ? (
-    <Heart className="h-5 w-5 text-red-500 fill-red-500" />
-  ) : (
-    <Heart className="h-5 w-5 text-gray-400" />
-  )}
-  <span>{post.likes || 0}</span>
-</Button>
-
-
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleLike(post.id)}
+                            className="flex items-center gap-2"
+                          >
+                            {userLikes[post.id] ? (
+                              <Heart className="h-5 w-5 text-red-500 fill-red-500" />
+                            ) : (
+                              <Heart className="h-5 w-5 text-gray-400" />
+                            )}
+                            <span>{post.likes || 0}</span>
+                          </Button>
 
                           <Button
-  variant="ghost"
-  size="sm"
-  onClick={() => toggleComments(post.id)}
->
-  <MessageCircle className="mr-2 h-4 w-4" />
-  {comments[post.id]?.length || 0}
-</Button>
-
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleComments(post.id)}
+                          >
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            {post.comments?.length || 0}
+                          </Button>
 
                           <Button variant="ghost" size="sm">
                             <Share2 className="mr-2 h-4 w-4" />
@@ -431,66 +368,63 @@ const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
                             </Button>
                           )}
                         </div>
+                        
                         <AnimatePresence>
-  {commentBoxes[post.id] && (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      className="mt-3 space-y-3"
-    >
-      <div className="flex items-center gap-2">
-        <Input
-          placeholder="Write a comment..."
-          value={newComments[post.id] || ""}
-          onChange={(e) =>
-            setNewComments((prev) => ({ ...prev, [post.id]: e.target.value }))
-          }
-        />
-        <Button
-          size="sm"
-          onClick={() => handleAddComment(post.id)}
-        >
-          Send
-        </Button>
-      </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+                          {commentBoxes[post.id] && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-3 space-y-3"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  placeholder="Write a comment..."
+                                  value={newComments[post.id] || ""}
+                                  onChange={(e) =>
+                                    setNewComments((prev) => ({ ...prev, [post.id]: e.target.value }))
+                                  }
+                                />
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleAddComment(post.id)}
+                                >
+                                  Send
+                                </Button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
 
-{comments[post.id]?.length > 0 && (
-  <div className="mt-2 space-y-2 border-t pt-2">
-    {comments[post.id].map((comment) => {
-      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-      const isAuthor = comment.author === currentUser.name;
+                        {post.comments?.length > 0 && (
+                          <div className="mt-2 space-y-2 border-t pt-2">
+                            {post.comments.map((comment) => {
+                              const isAuthor = comment.author === currentUser?.name;
 
-      return (
-        <div
-          key={comment.id}
-          className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 p-2 px-6 rounded-lg"
-        >
-          <div>
-            <p className="text-sm font-semibold">{comment.author}</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{comment.text}</p>
-          </div>
+                              return (
+                                <div
+                                  key={comment.id}
+                                  className="flex justify-between items-center bg-muted p-2 px-6 rounded-lg"
+                                >
+                                  <div>
+                                    <p className="text-sm font-semibold">{comment.author}</p>
+                                    <p className="text-sm text-muted-foreground">{comment.text}</p>
+                                  </div>
 
-          {isAuthor && (
-            <button
-              onClick={() => handleDeleteComment(post.id, comment.id)}
-              className="text-red-500 text-xs hover:underline"
-            >
-              <Trash className="inline-block mr-1 h-4 w-4" />
-            </button>
-          )}
-        </div>
-      );
-    })}
-  </div>
-)}
-
-
+                                  {isAuthor && (
+                                    <button
+                                      onClick={() => handleDeleteComment(post.id, comment.id)}
+                                      className="text-red-500 text-xs hover:underline"
+                                    >
+                                      <Trash className="inline-block mr-1 h-4 w-4" />
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </Card>
-                      
                     </motion.div>
                   ))}
               </AnimatePresence>
@@ -498,97 +432,103 @@ const [userLikes, setUserLikes] = useState<{ [key: string]: boolean }>({});
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Active Clusters */}
+              {/* Mentorship Section */}
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
                 <Card className="p-6 card-glow">
-                  <h2 className="font-heading text-lg font-semibold mb-4">Active Clusters</h2>
-                  <div className="space-y-3">
-                    {clusters.map((cluster, index) => (
-                      <motion.div key={index} whileHover={{ scale: 1.02 }} className="p-3 bg-muted rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="font-medium text-sm">{cluster.name}</h3>
-                          <Badge variant="outline" className="text-xs">
-                            {cluster.members} members
-                          </Badge>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Award className="h-5 w-5 text-primary" />
+                    <h2 className="font-heading text-lg font-semibold">Top Mentors</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {mentors.map((mentor, index) => (
+                      <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
+                        <Avatar>
+                          <AvatarFallback className="bg-accent text-accent-foreground">
+                            {mentor.name.split(" ").map(n => n[0]).join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{mentor.name}</p>
+                          <p className="text-xs text-muted-foreground">{mentor.specialty}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{cluster.category}</p>
-                        <Button size="sm" variant={cluster.active ? "outline" : "default"} className="w-full" onClick={() => !cluster.active && joinCluster(cluster.name)}>
-                          {cluster.active ? (
-                            <>
-                              <Users className="mr-2 h-3 w-3" />
-                              Active
-                            </>
-                          ) : (
-                            "Join Cluster"
-                          )}
-                        </Button>
-                      </motion.div>
+                        <Badge variant="secondary" className="text-xs">
+                          ⭐ {mentor.rating}
+                        </Badge>
+                      </div>
                     ))}
                   </div>
                 </Card>
               </motion.div>
 
-              {/* Mentor Connect */}
+              {/* Workshops Section */}
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
                 <Card className="p-6 card-glow">
-                  <h2 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" /> Featured Mentors
-                  </h2>
-                  <div className="space-y-3">
-                    {mentors.map((mentor, index) => (
-                      <motion.div key={index} whileHover={{ scale: 1.02 }} className="p-3 bg-muted rounded-lg">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-medium text-sm">{mentor.name}</h3>
-                            <p className="text-xs text-muted-foreground">{mentor.specialty}</p>
-                          </div>
-                          <Badge className="bg-accent/10 text-accent text-xs">⭐ {mentor.rating}</Badge>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <h2 className="font-heading text-lg font-semibold">Upcoming Workshops</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {workshops.map((workshop, index) => (
+                      <div key={index} className="p-3 rounded-lg border border-border hover:border-primary/50 transition-colors">
+                        <h3 className="font-medium text-sm mb-1">{workshop.title}</h3>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {workshop.date} • {workshop.time}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">by {workshop.instructor}</span>
+                          <Badge variant="outline" className="text-xs">{workshop.spots} spots</Badge>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-2">{mentor.students} students</p>
-                        <Button size="sm" variant="outline" className="w-full">
-                          Connect
-                        </Button>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </Card>
               </motion.div>
 
-              {/* Upcoming Workshops */}
+              {/* Clusters Section */}
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
                 <Card className="p-6 card-glow">
-                  <h2 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-primary" /> Upcoming Workshops
-                  </h2>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users className="h-5 w-5 text-primary" />
+                    <h2 className="font-heading text-lg font-semibold">Active Clusters</h2>
+                  </div>
                   <div className="space-y-3">
-                    {workshops.map((workshop, index) => (
-                      <motion.div key={index} whileHover={{ scale: 1.02 }} className="p-3 bg-muted rounded-lg">
-                        <h3 className="font-medium text-sm mb-2">{workshop.title}</h3>
-                        <div className="text-xs text-muted-foreground space-y-1 mb-2">
-                          <p>📅 {workshop.date}</p>
-                          <p>⏰ {workshop.time}</p>
-                          <p>👨‍🏫 {workshop.instructor}</p>
+                    {clusters.map((cluster, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted transition-colors">
+                        <div>
+                          <p className="font-medium text-sm">{cluster.name}</p>
+                          <p className="text-xs text-muted-foreground">{cluster.members} members</p>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-xs">
-                            {workshop.spots} spots left
-                          </Badge>
-                          <Button size="sm" variant="default" className="text-xs">
-                            Register
-                          </Button>
-                        </div>
-                      </motion.div>
+                        <Button
+                          size="sm"
+                          variant={cluster.active ? "default" : "outline"}
+                          onClick={() => joinCluster(cluster.name)}
+                        >
+                          {cluster.active ? "Joined" : "Join"}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+
+              {/* Trending Topics */}
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
+                <Card className="p-6 card-glow">
+                  <div className="flex items-center gap-2 mb-4">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                    <h2 className="font-heading text-lg font-semibold">Trending</h2>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {["#EcoFriendly", "#Handmade", "#TraditionalCrafts", "#SustainableFashion", "#ArtisanMade", "#LocalCrafts"].map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
+                        {tag}
+                      </Badge>
                     ))}
                   </div>
                 </Card>
               </motion.div>
             </div>
           </div>
-
-          {/* Footer */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center py-8 border-t border-border">
-            <p className="text-muted-foreground italic">"Together We Craft, Together We Thrive — MingleMakers Community"</p>
-          </motion.div>
         </main>
       </div>
     </SidebarProvider>

@@ -4,11 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, User } from "lucide-react";
-import { db } from "@/firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
 import { toast } from "sonner";
 
-interface User {
+interface UserData {
   id: string;
   name?: string;
   specialty?: string;
@@ -22,11 +20,11 @@ interface User {
 const ClusterPeopleList = () => {
   const { clusterId } = useParams();
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentLocation, setCurrentLocation] = useState<{ lat: number; lon: number } | null>(null);
 
-  // ✅ Get user's current location
+  // Get user's current location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) =>
@@ -38,23 +36,40 @@ const ClusterPeopleList = () => {
     );
   }, []);
 
-  // ✅ Fetch users from Firestore
+  // Load users from localStorage (mock data for demo)
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const q = query(collection(db, "users"), where("cluster", "==", clusterId));
-        const snap = await getDocs(q);
-        let people: User[] = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as User[];
+        // For now, use mock data since we're not using Firebase
+        // In a real app, you'd fetch from your backend
+        const mockUsers: UserData[] = [
+          {
+            id: "1",
+            name: "Rajesh Kumar",
+            specialty: "Traditional Pottery",
+            cluster: clusterId,
+            subCategory: "Terracotta",
+            location: "Jaipur, Rajasthan",
+          },
+          {
+            id: "2",
+            name: "Lakshmi Devi",
+            specialty: "Textile Weaving",
+            cluster: clusterId,
+            subCategory: "Handloom",
+            location: "Varanasi, UP",
+          },
+          {
+            id: "3",
+            name: "Amit Singh",
+            specialty: "Wood Carving",
+            cluster: clusterId,
+            subCategory: "Furniture",
+            location: "Saharanpur, UP",
+          },
+        ];
 
-        if (currentLocation) {
-          people = people.sort((a, b) => {
-            const distA = getDistance(a.locationCoords, currentLocation);
-            const distB = getDistance(b.locationCoords, currentLocation);
-            return distA - distB;
-          });
-        }
-
-        setUsers(people);
+        setUsers(mockUsers);
       } catch (e) {
         toast.error("Failed to load cluster members");
         console.error(e);
@@ -66,7 +81,7 @@ const ClusterPeopleList = () => {
     fetchUsers();
   }, [clusterId, currentLocation]);
 
-  // ✅ Helper to calculate distance (Haversine)
+  // Helper to calculate distance (Haversine)
   const getDistance = (loc1: any, loc2: any) => {
     if (!loc1 || !loc2) return Infinity;
     const R = 6371;
@@ -114,7 +129,7 @@ const ClusterPeopleList = () => {
                 {/* Profile Header */}
                 <div className="flex items-center gap-3">
                   <img
-                    src={u.profilePic || "/placeholder.png"}
+                    src={u.profilePic || "/placeholder.svg"}
                     alt={u.name}
                     className="h-12 w-12 rounded-full object-cover ring-2 ring-indigo-200 dark:ring-indigo-500"
                   />
